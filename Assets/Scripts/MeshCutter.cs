@@ -13,6 +13,9 @@ public class MeshCutter : MonoBehaviour
     private MeshFilter cutterMeshFilter;
     private Mesh cutterMesh;
 
+    // 切断面リスト
+    private List<Plane> cutPlanes = new List<Plane>();
+
     // 切断対象オブジェクトのメッシュ情報
     private MeshFilter targetMeshFilter;
     private Mesh targetMesh;
@@ -21,18 +24,28 @@ public class MeshCutter : MonoBehaviour
 
     void Start()
     {
-        // 切断用meshの取得
-        cutterMeshFilter = GetComponent<MeshFilter>();
-        cutterMesh = cutterMeshFilter.mesh;
-
-        // 切断対象objectのmesh取得
+        // 切断対象オブジェクトのメッシュ取得
         targetMeshFilter = TargetObject.GetComponent<MeshFilter>();
         targetMesh = targetMeshFilter.mesh;
 
+        // 切断用メッシュの取得
+        cutterMeshFilter = GetComponent<MeshFilter>();
+        cutterMesh = cutterMeshFilter.mesh;
+
+        // 切断用オブジェクトのメッシュ情報(トライアングル)から切断面を作成
+        for (int i = 0; i < cutterMesh.triangles.Length; i += 3)
+        {
+            // TODO: 法線ベクトル情報を取得して切断面に反映
+            Plane cutPlane = new Plane(cutterMesh.vertices[cutterMesh.triangles[i]],
+                                       cutterMesh.vertices[cutterMesh.triangles[i + 1]],
+                                       cutterMesh.vertices[cutterMesh.triangles[i + 2]]);
+            cutPlanes.Add(cutPlane);
+            
+            // TODO: 重複する切断面を除外する処理
+        }
 
         // TODO: 動作確認用に切断平面を作成
         cutPlane = new Plane(new Vector3(0, 1, 0), Vector3.zero);
-
 
         Test();
     }
@@ -43,7 +56,7 @@ public class MeshCutter : MonoBehaviour
         DVector3 p1, p2, p3;
         bool p1Bool, p2Bool, p3Bool;
 
-        // カットしたいオブジェクトのメッシュをトライアングルごとに処理
+        // 切断対象オブジェクトのメッシュをトライアングルごとに処理
         for (int i = 0; i < targetMesh.triangles.Length; i += 3)
         {
             // メッシュの3つの頂点を取得
@@ -73,5 +86,7 @@ public class MeshCutter : MonoBehaviour
                 // TODO
             }
         }
+
+       
     }
 }
